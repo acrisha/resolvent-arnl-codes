@@ -14,12 +14,12 @@ clc, clear, close all;
 
 %% user inputs
 % which files / data do you want to load in?
-filename1 = "savekxplotRe180_Nx6_Nz4_svd1_omegacase0_filteredmean.mat";
-filename2 = "savekeepvalsRe180_Nx6_Nz4_svd1_omegacase0_filteredmean.mat" ;
+filename1 = "savekxplotRe180_Nx32_Nz4_svd4_omegacase0.mat";
+filename2 = "savekeepvalsRe180_Nx32_Nz4_svd4_omegacase0.mat" ;
 filename3 = "channel180_moser_loaddata.mat";
 
 % used for wave number calculations
-gpx = 6;  % grid points in streamwise (based on filenameX input values)
+gpx = 32;  % grid points in streamwise (based on filenameX input values)
 gpz = 4;   %                spanwise 
 delta = 1; % half channel height
 
@@ -27,13 +27,18 @@ delta = 1; % half channel height
 % what do we want to plot?
 % kx' vx kx'' (case 1)
 % kx vx kz    (case 2)
-plotchoice = 2;
+plotchoice = 1;
 
 % figure settings
 manual_bounds = true;   % if we want to make the plot look pretty and hard code the bounds
 savefigure = false;      % if we want to save figure
 FS = 20;  % fontsize
 LW = 1.5; % linewidth
+
+
+
+
+
 
 
 
@@ -65,7 +70,7 @@ kz_ind = keeper_vals(:,10);
 
 
 %% prepare plotting variables
-determine keeper rows for plotting based on what we want to plot
+% determine keeper rows for plotting based on what we want to plot
 switch plotchoice
     case 1 % kx' vx kx'' (case 1)
         disp('Case 1: Plotting kx'' vx kx''''')
