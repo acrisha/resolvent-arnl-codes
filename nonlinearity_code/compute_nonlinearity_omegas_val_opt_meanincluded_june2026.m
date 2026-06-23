@@ -20,7 +20,7 @@ tStart = tic;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% user inputs
 % what Reynolds number channel we want to look at?
-Retau = 395;   % 180, 395
+Retau = 180;   % 180, 395
 
 % do we want to validate symmetry and projection are computed correctly?
 validationflag = 0;    % 0 to skip validation, 1 to run validation
@@ -30,13 +30,9 @@ validationflag = 0;    % 0 to skip validation, 1 to run validation
 % 0: all three omega = 0                 
 % 1: for first response mode omega=omega_critical, second response mode omega=0 (forcing mode omega=omega_critical)                    
 % 2: for first response mode omega=0, second response mode omega=omega_critical (forcing mode omega=omega_critical)
-omegacase = 0; 
+omegacase = 1; 
 
 quickplotcheckflag = 1; % 0 to skip quick plotting check, 1 to plot figure at end
-
-
-
-
 
 
 fprintf('Retau = %i, validation? = %i, omegacase = %i \n',Retau,validationflag,omegacase)
@@ -58,8 +54,6 @@ Nz = 4; % spanwise
 Ny = ny;   % wall normal
 nsvd =  2;  % max amount of modes we can keep, Nkeep is number of modes to keep, preferred divisibility by 2
 Nkeep = nsvd;
-
-
 
 
 %% load in modes from resolvent calculator code
@@ -97,9 +91,9 @@ end
 
 
 %% initialization of variables
-filesavename1 = ['saveNLprojRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_filteredmean.mat'];
-filesavename2 = ['savekeepvalsRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_filteredmean.mat'];
-filesavename3 = ['savekxplotRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_filteredmean.mat'];
+filesavename1 = ['saveNLprojRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_meanincluded.mat'];
+filesavename2 = ['savekeepvalsRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_meanincluded.mat'];
+filesavename3 = ['savekxplotRe',num2str(Retau),'_Nx',num2str(Nx),'_Nz',num2str(Nz),'_svd',num2str(Nkeep),'_omegacase',num2str(omegacase),'_meanincluded.mat'];
 
 sqW=sqW(1:Ny*3,1:Ny*3); %remove the pressure part of the mode
 sqW2=sqW.^2; %remove the pressure part of the mode
@@ -119,16 +113,13 @@ for kkx1 = -Nx:Nx
     disp(kkx1)
     for kkz1 = -Nz:Nz
         for kkx2 = -Nx:Nx
-            for kkz2 = 0:Nz
+            for kkz2 = 0:Nz 
                 % disp(['(kx1,kz1) = (', num2str(kkx1),',',num2str(kkz1),') , (kx2,kz2) = (', num2str(kkx2),',',num2str(kkz2),')'])
 
-                % check for any nonzero wave numbers (exluding kz',kz'' = 0)
-                % if kkx1 ~= 0 && kkx2 ~= 0 && kkz1 ~= 0 && kkz2 ~= 0 && (kkx1 + kkx2 ~= 0 || kkz1 + kkz2 ~= 0)
-                % if abs(kkx1) ~= 0 && abs(kkx2) ~= 0 && (kkx1 + kkx2 ~= 0 && kkz1 + kkz2 ~= 0)
-                
-                % filtering out mean mode combination (kx,kz = 0,0) and streamwise
+            
+                % filtering out mean mode combination (kx,kz = 0,0) and KEEPS streamwise
                 % constant modes (i.e., kx' and kx'' = 0) where kx = kx' + kx''
-                if  (kkx1 + kkx2 ~= 0 && kkz1 + kkz2 ~= 0 && kkx1 ~= 0 && kkx2 ~= 0)
+                if  (abs(kkx1+kkx2) + abs(kkz1+kkz2) ~= 0) % does not filter streamwise mean
 
                     % check to make sure wave number combinations are within domain bounds.
                     if (abs(kkx1 + kkx2) <= Nx) && (abs(kkz1 + kkz2) <= Nz)
