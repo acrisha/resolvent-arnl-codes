@@ -55,7 +55,7 @@ psi_sym(  Ny+(cntr+1:Ny), 2) = -psi_sym(  Ny+(cntr+1:Ny), 1);
 psi_sym(2*Ny+(cntr+1:Ny), 2) = -psi_sym(2*Ny+(cntr+1:Ny), 1);
 psi_sym(3*Ny+(cntr+1:Ny), 2) = -psi_sym(3*Ny+(cntr+1:Ny), 1);
 
-%psi_sym([cntr Ny+cntr 2*Ny+cntr 3*Ny+cntr],2)=0;
+psi_sym([cntr Ny+cntr 2*Ny+cntr 3*Ny+cntr],2)=0;
 
 % do the same for phi
 phi_sym(:,1) = a1*phi(:,1) + a2*phi(:,2);
@@ -72,7 +72,7 @@ phi_sym(  Ny+(cntr+1:Ny), 2) = -phi_sym(  Ny+(cntr+1:Ny), 1);
 phi_sym(2*Ny+(cntr+1:Ny), 2) = -phi_sym(2*Ny+(cntr+1:Ny), 1);
 phi_sym(3*Ny+(cntr+1:Ny), 2) = -phi_sym(3*Ny+(cntr+1:Ny), 1);
 
-%phi_sym([cntr Ny+cntr 2*Ny+cntr 3*Ny+cntr],2)=0;
+phi_sym([cntr Ny+cntr 2*Ny+cntr 3*Ny+cntr],2)=0;
 
 
 % set phase to zero at peak of (rescaled) u
