@@ -13,14 +13,29 @@ clc, clear, close all;
 
 
 %% user inputs
+
+
+omegacase = 0;
+Nxcase = 2;
+Nzcase = 2;
+Recase = 395;
+svdcase = 2;
+
+
 % which files / data do you want to load in?
-filename1 = "savekxplotRe180_Nx32_Nz4_svd4_omegacase0.mat";
-filename2 = "savekeepvalsRe180_Nx32_Nz4_svd4_omegacase0.mat" ;
-filename3 = "channel180_moser_loaddata.mat";
+filename1 = ['savekxplotRe',num2str(Recase),'_Nx',num2str(Nxcase),'_Nz',num2str(Nzcase),'_svd',num2str(svdcase),'_omegacase',num2str(omegacase),'_filteredmean.mat'];
+filename2 = ['savekeepvalsRe',num2str(Recase),'_Nx',num2str(Nxcase),'_Nz',num2str(Nzcase),'_svd',num2str(svdcase),'_omegacase',num2str(omegacase),'_filteredmean.mat'];
+
+filename3 = ['channel',num2str(Recase),'_moser_loaddata.mat'];
+
+
+
+
+
 
 % used for wave number calculations
-gpx = 32;  % grid points in streamwise (based on filenameX input values)
-gpz = 4;   %                spanwise 
+gpx = Nxcase;  % grid points in streamwise (based on filenameX input values)
+gpz = Nzcase;   %                spanwise 
 delta = 1; % half channel height
 
 
@@ -96,7 +111,7 @@ max_alpha_of_pairs = accumarray(idx, alpha_keeper, [], @max);
 % create an array with the unique pair and alpha combinations
 result = [unique_pairs, max_alpha_of_pairs];
 alpha = result(:,3)/max(result(:,3),[],'all'); % normalized alpha we plot
-
+alpha(alpha==0)=NaN;
 
 % determine plot parameters for each case
 kprime_index = result(:,1);
@@ -107,24 +122,27 @@ switch plotchoice
     case 1 % kx' vx kx'' (case 1)
         xlabelstring = {'$K_1''$'};
         ylabelstring = {'$k_1''''$'};
-        cmap = slanCM('OrRd');
+        % cmap = slanCM('OrRd'); % << you need to download this in order to
+        % get the colors
+        cmap = 'jet'; % you can fix color scheme later
+
         coefficienta = 50;  % for visualization on scatter plot
         coefficientb = 800;
         kprime = kprime_index * 2*pi * delta / LxDNS;
         kdoubprime = kdoubprime_index * 2*pi * delta / LxDNS;
 
 
-        figure
-        pcolor(-gpx:gpx,-gpx:gpx,kx_plot/max(kx_plot,[],'all')); colorbar
-        c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
-        colormap(cmap);
-        ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
-        ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
-        set(gca,'YDir','normal');
-        axis square
-        xlabel('$-n_1'':n_1''$','FontSize',FS,'interpreter','latex')
-        ylabel('$-n_1'''':n_1''''$','FontSize',FS,'interpreter','latex')
-        title('Quick Check: integers: $n_1 = n_1'' + n_1''''$')
+        % figure
+        % pcolor(-gpx:gpx,-gpx:gpx,kx_plot/max(kx_plot,[],'all')); colorbar
+        % c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+        % colormap(cmap);
+        % ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+        % ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+        % set(gca,'YDir','normal');
+        % axis square
+        % xlabel('$-n_1'':n_1''$','FontSize',FS,'interpreter','latex')
+        % ylabel('$-n_1'''':n_1''''$','FontSize',FS,'interpreter','latex')
+        % title('Quick Check: integers: $n_1 = n_1'' + n_1''''$')
 
     case 2 % kx vx kz    (case 2)
         xlabelstring = {'$k_3$'};
@@ -141,44 +159,62 @@ switch plotchoice
 end
 
 %% plotting
-hfig = figure;
+hfigafter = figure;
 s1fig = subplot(1,2,1);
-sizes = coefficienta * (alpha) + 1; % plus one is just because sizes cannot have 0s. Just for visual purposes
-scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled'); % Scatter plot with square markers
-c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
-colormap(cmap);
-ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
-ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
-set(gca,'YDir','normal');
-axis square
-xlabel(xlabelstring,'FontSize',FS,'interpreter','latex')
-ylabel(ylabelstring,'FontSize',FS,'interpreter','latex')
-grid off;
-xtickangle(0)
-ax.XAxis.Label.Rotation = 0;
-ax.YAxis.Label.Rotation = 0;
-
-s2fig = subplot(1,2,2);
 sizes = coefficientb * (alpha) + 1;
-scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
+scatter(kdoubprime_index,kprime_index, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
 c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
 colormap(cmap);
 ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
 ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
 set(gca,'YDir','normal');
 axis square
-xlabel(xlabelstring,'FontSize',FS,'interpreter','latex')
-ylabel(ylabelstring,'FontSize',FS,'interpreter','latex')
+xlabel('$N_1''$','FontSize',FS,'interpreter','latex')
+ylabel('$n_1''''$','FontSize',FS,'interpreter','latex')
 grid off;
 xtickangle(0)
 ax.XAxis.Label.Rotation = 0;
 ax.YAxis.Label.Rotation = 0;
+    yline(-4.5:1:4.5,'LineWidth',0.75)
+    xline(-4.5:1:4.5,'LineWidth',0.75)
+    xlim([-4.5 4.5]);
+    ylim([-4.5 4.5]);
+
+set(hfigafter, 'Units', 'inches', 'Position', [1 1 16 6]);
 
 
+
+% %%
+%     figure
+% s2fig = subplot(1,2,2);
+% sizes = coefficientb * (alpha) + 1;
+% scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
+% c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+% colormap(cmap);
+% ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+% ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+% set(gca,'YDir','normal');
+% axis square
+% xlabel(xlabelstring,'FontSize',FS,'interpreter','latex')
+% ylabel(ylabelstring,'FontSize',FS,'interpreter','latex')
+% grid off;
+% xtickangle(0)
+% ax.XAxis.Label.Rotation = 0;
+% ax.YAxis.Label.Rotation = 0;
+% 
+% val1 = 2.25;
+% yline(-2.25:0.5:2.25,'LineWidth',0.75)
+% xline(-2.25:0.5:2.25,'LineWidth',0.75)
+% xlim([-val1 val1]);
+% ylim([-val1 val1]);
+% 
+% xticks(-val1:2:val1);
+% yticks(-val1:2:val1);
 
 %% manually hard code bounds for visualization puropses
 if manual_bounds 
-
+end
+ %{   
 % hard coded bounds
 switch plotchoice
     case 1 % kx' vx kx'' (case 1)
@@ -243,5 +279,226 @@ if savefigure
     print(hfig, 'tester.pdf', '-dpdf', '-painters');
 end
 
+ %}
+
+%{
+
+%% plotting of scatter plots
+clc, clear, close all;
+
+% this script reads in .mat files to create heat maps for Madrid proceedings from summer 2025
 
 
+% which plot do we want to create
+plottingkx = true;       % plot kx' vs. kx''
+plottingkxkz = false;    % plot kx vs kz
+
+
+
+
+
+
+
+
+
+
+
+
+
+if plottingkx
+    filenames = ["kxtriad_filteredmean_local.mat" ];
+    xlabelstring = {'$K_1''$'};
+    ylabelstring = {'$k_1''''$'};
+    cmap = slanCM('OrRd');
+    coefficienta = 50; % coefficnets used for plot visualization (just to make pretty)
+    coefficientb = 800;
+end
+
+if plottingkxkz
+    filenames = ["kxvskzplotScatter_Re180_Nx32_Nz32_svd4.mat" ];
+
+    xlabelstring = {'$k_3$'};
+    ylabelstring = {'$k_1$'};
+    cmap = slanCM('GnBu');
+    coefficienta = 50;  % coefficnets used for plot visualization (just to make pretty)
+    coefficientb = 1200;
+end
+
+% used for plot visualization (just to make pretty)
+FS = 20;   % fontsize
+LW = 1.5;  % linewidth
+val = 9;
+valskip = 2;
+
+% used for wave number calculations - hard coded for proceedings dimensions
+gp = 64;    % grid points in streamwise and spanwise directions
+LxDNS = pi; 
+LzDNS = pi/2;
+delta = 1;
+
+
+
+for i = 1:length(filenames)
+
+    filename = filenames(i);
+    load(filename)
+
+    kprime_index = result(:,1);
+    kdoubprime_index = result(:,2);
+
+    if plottingkx
+    kprime = kprime_index * 2*pi * delta / LxDNS;
+    kdoubprime = kdoubprime_index * 2*pi * delta / LxDNS;
+    end
+
+    if plottingkxkz
+    kprime = kprime_index * 2*pi * delta / LxDNS;
+    kdoubprime = kdoubprime_index * 2*pi * delta / LzDNS;
+    end
+
+    alpha = result(:,3)/max(result(:,3),[],'all');  %  alpha / max(alpha)
+
+
+    % whole plot
+    hfig = figure;
+    s1fig = subplot(1,2,1);
+    sizes = coefficienta * (alpha / max(alpha));
+    scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled'); % Scatter plot with square markers
+    c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+    colormap(cmap);
+    ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+    ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+
+    set(gca,'YDir','normal');
+    axis square
+    xlabel(xlabelstring{i},'FontSize',FS,'interpreter','latex')
+    ylabel(ylabelstring{i},'FontSize',FS,'interpreter','latex')
+    grid off;
+    text(s1fig, -0.23, 0.99, '(a)', 'Units', 'normalized', 'FontSize', FS, 'Interpreter','latex', 'FontWeight','bold');
+    xtickangle(0)
+    ax.XAxis.Label.Rotation = 0;
+    ax.YAxis.Label.Rotation = 0;
+
+    if plottingkx % hard coded for proceedings visualization
+    xlim([-64 64]); ylim([-64 64]);
+    xticks(-64:16:64); yticks(-64:16:64);
+    end
+    
+    if plottingkxkz % hard coded for proceedings visualization
+        xlim([-128 128]); 
+        ylim([-64 64]);
+    xticks(-128:32:128); yticks(-64:16:64);
+    end
+
+    % zoomed in plot
+    s1fig = subplot(1,2,2);
+    sizes = coefficientb * (alpha / max(alpha));
+    scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
+    c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+    colormap(cmap);
+    ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+    ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+    set(gca,'YDir','normal');
+    axis square
+    xlabel(xlabelstring{i},'FontSize',FS,'interpreter','latex')
+    ylabel(ylabelstring{i},'FontSize',FS,'interpreter','latex')
+    grid off;
+    xtickangle(0)
+    ax.XAxis.Label.Rotation = 0;
+    ax.YAxis.Label.Rotation = 0;
+    text(s1fig, -0.23, 0.99, '(b)', 'Units', 'normalized', 'FontSize', FS, 'Interpreter','latex', 'FontWeight','bold');
+    
+    if plottingkx % hard coded for proceedings visualization
+    yline(-val:2:val,'LineWidth',0.75)
+    xline(-val:2:val,'LineWidth',0.75)
+    xlim([-9 9]); ylim([-9 9]);
+    xticks(-8:2:8); yticks(-8:2:8);
+    end
+
+    if plottingkxkz % hard coded for proceedings visualization
+    yline(-9:2:9,'LineWidth',0.75)
+    xline(-18:4:18,'LineWidth',0.75)
+    xlim([-18 18]); 
+    ylim([-9 9]);
+    xticks(-16:4:16); 
+    yticks(-8:2:8);
+    end
+
+    set(hfig, 'Units', 'inches', 'Position', [1 1 16 6]);
+
+end
+
+
+
+%% if we want to save figure
+%{
+% Remove extra white space around subplots
+set(hfig, 'PaperUnits', 'inches');
+set(hfig, 'PaperPositionMode', 'auto');
+set(hfig, 'PaperSize', [16 6]);  % Match the figure size exactly
+
+% OPTIONAL: Make subplots tighter (if needed)
+% tight_layout = true;
+% if tight_layout
+%     % Works in newer MATLAB versions
+%     tiledlayout(2,2,'Padding','compact','TileSpacing','compact');
+% end
+
+% Save as PDF with no additional white space
+print(hfig, 'tester.pdf', '-dpdf', '-painters');
+
+%}
+
+%%
+hfigafter=figure;
+subplot(1,2,1)
+sizes = coefficientb * (alpha / max(alpha));
+scatter(kdoubprime_index,kprime_index, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
+c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+colormap(cmap);
+ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+set(gca,'YDir','normal');
+axis square
+xlabel('$N_1''$','FontSize',FS,'interpreter','latex')
+ylabel('$n_1''''$','FontSize',FS,'interpreter','latex')
+grid off;
+xtickangle(0)
+ax.XAxis.Label.Rotation = 0;
+ax.YAxis.Label.Rotation = 0;
+% text(s1fig, -0.23, 0.99, '(b)', 'Units', 'normalized', 'FontSize', FS, 'Interpreter','latex', 'FontWeight','bold');
+if plottingkx % hard coded for proceedings visualization
+    yline(-4.5:1:4.5,'LineWidth',0.75)
+    xline(-4.5:1:4.5,'LineWidth',0.75)
+    xlim([-4.5 4.5]);
+    ylim([-4.5 4.5]);
+    % xticks(-8:2:8); yticks(-8:2:8);
+end
+
+
+subplot(1,2,2);
+sizes = coefficientb * (alpha / max(alpha));
+scatter(kdoubprime,kprime, sizes, alpha, 's', 'filled','MarkerEdgeColor','black'); % Scatter plot with square markers
+c = colorbar; c.TickLabelInterpreter = 'latex'; clim([0 1]);
+colormap(cmap);
+ylabel(c, '$\frac{\alpha}{\alpha_{max}}$','Interpreter','latex','Rotation',0,'FontSize',24);
+ax = gca; ax.FontSize = FS; ax.TickDir = 'in'; ax.LineWidth = LW; ax.TickLabelInterpreter = 'Latex';
+set(gca,'YDir','normal');
+axis square
+xlabel(xlabelstring{i},'FontSize',FS,'interpreter','latex')
+ylabel(ylabelstring{i},'FontSize',FS,'interpreter','latex')
+grid off;
+xtickangle(0)
+ax.XAxis.Label.Rotation = 0;
+ax.YAxis.Label.Rotation = 0;
+
+if plottingkx % hard coded for proceedings visualization
+    yline(-val:2:val,'LineWidth',0.75)
+    xline(-val:2:val,'LineWidth',0.75)
+    xlim([-9 9]); ylim([-9 9]);
+    xticks(-8:2:8); yticks(-8:2:8);
+end
+
+set(hfigafter, 'Units', 'inches', 'Position', [1 1 16 6]);
+
+%}
