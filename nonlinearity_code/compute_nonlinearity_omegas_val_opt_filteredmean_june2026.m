@@ -20,7 +20,9 @@ tStart = tic;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% user inputs
 % what Reynolds number channel we want to look at?
-Retau = 395;   % 180, 395
+Retau = 180;   % 180, 395
+
+
 
 % do we want to validate symmetry and projection are computed correctly?
 validationflag = 0;    % 0 to skip validation, 1 to run validation
@@ -32,13 +34,14 @@ validationflag = 0;    % 0 to skip validation, 1 to run validation
 % 2: for first response mode omega=0, second response mode omega=omega_critical (forcing mode omega=omega_critical)
 omegacase = 0; 
 
+% what omega critical case are we doing?
+omegacrit_case = 12.2929;   % only used if input the cirtcial omega from the mode .mat file
+
 quickplotcheckflag = 1; % 0 to skip quick plotting check, 1 to plot figure at end
 
 
 
-
-
-
+%% print in command window
 fprintf('Retau = %i, validation? = %i, omegacase = %i \n',Retau,validationflag,omegacase)
 
 %% load in channel parameters
@@ -52,13 +55,13 @@ Ny = ny;   % wall normal
 nsvd = 2;  % max amount of modes we can keep, Nkeep is number of modes to keep, preferred divisibility by 2
 Nkeep = nsvd;
 
-% used for debugging override (remove for actual runs)
-Nx = 16; % streamwise
-Nz = 4; % spanwise
-Ny = ny;   % wall normal
-nsvd =  2;  % max amount of modes we can keep, Nkeep is number of modes to keep, preferred divisibility by 2
-Nkeep = nsvd;
-
+% 
+% % % % this is used for debugging!!!!! (comment out for running full mode calc)
+% Nx = 4;
+% Nz = 2;
+% Ny = ny;
+% Nkeep = 2;
+% nsvd =  Nkeep;  % max amount of modes we can keep, Nkeep is number of modes to keep, preferred divisibility by 2
 
 
 
@@ -73,7 +76,7 @@ if omegacase == 0
     
 elseif omegacase == 1
     % critical omega
-    load(['modes',num2str(Retau),'_moser_june2026_omegacrit.mat'],'fvec','uvec','sval','D1','sqW');
+    load(['modes',num2str(Retau),'_moser_june2026_omegacrit',num2str(omegacrit_case),'.mat'],'fvec','uvec','sval','D1','sqW');
     uvec1=uvec; fvec1=fvec; sval1=sval; %critical omega
     uvec3=uvec; fvec3=fvec; sval3=sval; %critical omega
 
@@ -84,7 +87,7 @@ elseif omegacase == 1
 
 elseif omegacase == 2
     % critical omega
-    load(['modes',num2str(Retau),'_moser_june2026_omegacrit.mat'],'fvec','uvec','sval','D1','sqW');
+    load(['modes',num2str(Retau),'_moser_june2026_omegacrit',num2str(omegacrit_case),'.mat'],'fvec','uvec','sval','D1','sqW');
     uvec2=uvec; fvec2=fvec; sval2=sval; %critical omega
     uvec3=uvec; fvec3=fvec; sval3=sval; %critical omega
     
