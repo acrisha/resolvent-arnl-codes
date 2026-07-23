@@ -149,8 +149,9 @@ divvec=[norm(divorig_psi1([1:((Ny-1)/2) ((Ny+3)/2):end])) norm(divorig_psi2([1:(
          norm(divsym_phi1([1:((Ny-1)/2) ((Ny+3)/2):end]))  norm(divsym_phi2([1:((Ny-1)/2) ((Ny+3)/2):end]))];
 
 if any(divvec>1e-6)
+    disp('divergence > 1e-6')
     divvec
-    keyboard
+    % keyboard
 end
 
 
